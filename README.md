@@ -1,9 +1,8 @@
-# \[Group name\]
+# DAvid KN
 
 **Group members:**
-- A
-- B
-- C
+- David Koefoed Nielsen
+
 
 This repository contains  
 1. Inaugural project. 
