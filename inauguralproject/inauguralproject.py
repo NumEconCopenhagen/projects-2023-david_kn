@@ -182,11 +182,5 @@ class HouseholdSpecializationModelClass:
 
         pass
 
-    def return_par(self):
-
-        par = self.par
-        x = par.rho
-
-        return x
 
         
