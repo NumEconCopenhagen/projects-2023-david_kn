@@ -1,9 +1,7 @@
-
+# Imports
 from types import SimpleNamespace
-
 import numpy as np
 from scipy import optimize
-
 import pandas as pd 
 import matplotlib.pyplot as plt
 
@@ -50,12 +48,12 @@ class HouseholdSpecializationModelClass:
         sol = self.sol
 
         # a. consumption of market goods
-        C = WF*LM + WF*LF
+        C = par.wM*LM + WF*LF
 
         # b. home production
-        if par.sigma == 0:
+        if np.allclose(par.sigma, 0):
             H = np.minimum(HM, HF)
-        elif par.sigma == 1:
+        elif np.allclose(par.sigma, 1):
             H = HM**(1-par.alpha)*HF**par.alpha
         else:
             H = ((1-par.alpha) * HM ** ((par.sigma-1)/par.sigma) + par.alpha * HF ** ((par.sigma-1)/par.sigma)) ** (par.sigma / (par.sigma-1))
@@ -177,10 +175,34 @@ class HouseholdSpecializationModelClass:
         A = np.vstack([np.ones(x.size),x]).T
         sol.beta0,sol.beta1 = np.linalg.lstsq(A,y,rcond=None)[0]
     
-    def estimate(self,alpha=None,sigma=None):
-        """ estimate alpha and sigma """
+    def estimate(self, alpha=None, sigma=None):
+        
+        # objective function to minimize
 
-        pass
+        def object_func(x):
+            
+            par = self.par
+            sol = self.sol
+            par.alpha = x[0]
+            par.sigma = x[1]
+            self.solve_wF_vec()
+            self.run_regression()
+            return (par.beta0_target - sol.beta0) ** 2 + (par.beta1_target - sol.beta1) ** 2
+        
+        # Call solver
+        initial_guess = [0.5,1] 
+        solution = optimize.minimize(object_func, initial_guess, method='Nelder-Mead')
+
+        # Unpack solution
+        alpha_opt = solution.x[0]
+        sigma_opt = solution.x[1]
+
+        return alpha_opt, sigma_opt
+    
+   
+
+
+        
 
 
         
